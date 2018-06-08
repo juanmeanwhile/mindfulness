@@ -19,7 +19,7 @@
         app:srcCompat="@android:color/holo_orange_dark"/>
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/sessionTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"

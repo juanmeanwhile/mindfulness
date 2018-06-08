@@ -4,11 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-import android.arch.persistence.room.Room;
 import android.support.annotation.VisibleForTesting;
-import android.view.View;
 
-import com.meanwhile.mindfulness.repo.SessionRepository;
+import com.meanwhile.mindfulness.data.SessionLocalCache;
+import com.meanwhile.mindfulness.db.SessionDatabase;
+import com.meanwhile.mindfulness.player.PlayerViewModel;
+import com.meanwhile.mindfulness.data.SessionRepository;
 
 import java.util.concurrent.Executors;
 
@@ -30,9 +31,8 @@ public class ViewModelFactory extends ViewModelProvider.NewInstanceFactory {
         if (INSTANCE == null) {
             synchronized (ViewModelFactory.class) {
                 if (INSTANCE == null) {
-                    //MyDatabase db = Room.databaseBuilder(application,
-                    //        MyDatabase.class, DB_NAME).build();
-                    INSTANCE = new ViewModelFactory(application, new SessionRepository());
+                    SessionDatabase database = SessionDatabase.Companion.getInstance(application);
+                    INSTANCE = new ViewModelFactory(application, new SessionRepository(new SessionLocalCache(database.sessionsDao(), Executors.newSingleThreadExecutor())));
                 }
             }
         }
@@ -55,6 +55,8 @@ public class ViewModelFactory extends ViewModelProvider.NewInstanceFactory {
             //noinspection unchecked
             return (T) new MainViewModel(sessionRepository);
 
+        } else if (modelClass.isAssignableFrom(PlayerViewModel.class)) {
+            return (T) new PlayerViewModel(sessionRepository);
         }
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
     }
